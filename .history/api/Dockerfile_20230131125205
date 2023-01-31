@@ -1,0 +1,7 @@
+FROM node:latest
+
+RUN apt-get update
+
+COPY ["./src/.", "./"]
+RUN npm install
+CMD [ "node", "apiserver.js" ]

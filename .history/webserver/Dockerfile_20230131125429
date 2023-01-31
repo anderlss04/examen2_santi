@@ -1,0 +1,49 @@
+
+# # FROM httpd
+# FROM php:8.1.6-apache
+# ARG DEBIAN_FRONTEND=noninteractive
+# RUN docker-php-ext-install mysqli
+# # Include alternative DB driver
+# # RUN docker-php-ext-install pdo
+# # RUN docker-php-ext-install pdo_mysql
+# RUN apt-get update \
+#     && apt-get install -y sendmail libpng-dev \
+#     && apt-get install -y libzip-dev \
+#     && apt-get install -y zlib1g-dev \
+#     && apt-get install -y libonig-dev \
+#     && rm -rf /var/lib/apt/lists/* \
+#     && docker-php-ext-install zip
+
+# RUN docker-php-ext-install mbstring
+# RUN docker-php-ext-install zip
+# RUN docker-php-ext-install gd
+
+# RUN a2enmod rewrite
+
+
+# Utilice la imagen base oficial de Node.js
+FROM node:14
+
+# Instale Apache
+RUN apt-get update && apt-get install -y apache2
+
+# Copie los archivos de la aplicación a /app
+COPY ./src/. /var/www/html
+
+# Establezca el directorio de trabajo en /app
+WORKDIR /var/www/html
+
+# Instale las dependencias de la aplicación
+RUN npm install
+
+# Configure Apache
+RUN a2enmod proxy && a2enmod proxy_http
+COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
+
+# Exponga los puertos que la aplicación y Apache usan
+EXPOSE 80
+EXPOSE 3000
+
+# Especifique los comandos a ejecutar al iniciar el contenedor
+CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
+
